@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,15 +9,17 @@ using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
+    /* -------------------------------- OnEnable -------------------------------- */
+    private Rigidbody2D rb;
+    private CapsuleCollider2D capCollider;
+    private TrailRenderer trail;
+    private SpriteRenderer spriteRender;
 
-    /* --------------------------------- Object --------------------------------- */
-    [SerializeField] private Rigidbody2D rb;
+    /* ------------------------------ Ground Check ------------------------------ */
+    [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Vector2 boxSize;
     [SerializeField] private float groundDistance;
-    [SerializeField] private CapsuleCollider2D capCollider;
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private TrailRenderer trail;
-    [SerializeField] private SpriteRenderer spriteRender;
+    private bool isGrounded;
 
     /* ------------------------------- horizontal ------------------------------- */
     [SerializeField] private float moveSpeed = 8f;
@@ -27,7 +30,6 @@ public class PlayerMovement : MonoBehaviour
     /* ------------------------------ Jump and Fall ----------------------------- */
     [SerializeField] private float terminalFall = 8f;
     [SerializeField] private float jumpHeight = 5f;
-    private bool jumpPressed;
     private float jumpForce;
 
     /* ---------------------------------- Coyote --------------------------------- */
@@ -35,40 +37,75 @@ public class PlayerMovement : MonoBehaviour
     public float coyoteCounter = 0;
 
     /* ------------------------------- Jump Buffer ------------------------------ */
-
     [SerializeField] private float jumpBufferTime = 0.2f;
-
-    public float jumpBufferCoutner = 0f;
+    private float jumpBufferCoutner = 0f;
 
     /* -------------------------------- MultiJump ------------------------------- */
 
-    public int jumpCounter = 0;
     [SerializeField] private int maxJumps = 1;
+    public int jumpCounter = 0;
 
 
     /* ---------------------------------- Dash ---------------------------------- */
-    private bool isDashing;
-    private bool canDash = true;
     [SerializeField] private float dashPower = 24f;
     [SerializeField] private float dashTime = 0.2f;
     [SerializeField] private float dashCooldown = 1.5f;
+    private bool canDash = true;
+    private bool isDashing;
 
 
     /* --------------------------------- Origize -------------------------------- */
     private Vector2 frameVelocity;
 
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        capCollider = GetComponent<CapsuleCollider2D>();
+        trail = GetComponent<TrailRenderer>();
+        spriteRender = GetComponent<SpriteRenderer>();
+    }
 
 
-    // Update is called once per frame
-    void Update()
+
+
+
+
+
+
+
+
+    // TODO Orginize vars in to a scriptable object 
+    // TODO Set up tool hints and orginize for unity editor 
+    // * intigrate Jumpbuffer [Ask Other for opinions]
+    // TODO ? Grapple ?
+    // TODO Pick apart update function in to diffrent function && move some into fixed update 
+    // TODO Think about how you want the dash to work or leave as is (ask a friend for input)
+
+
+    private void Update()
+    {
+        // Debug.Log(rb.velocity);
+        // frameVelocity.x = (horizontal * moveSpeed);
+    }
+
+
+    private void FixedUpdate()
     {
         if (isDashing) return;
+        frameVelocity = new Vector2(horizontal * moveSpeed, frameVelocity.y);
+        UpdateGround();
+        HandleFlip();
+        ManageJumpAndFall();
+        UpdateVelocity();
+    }
 
+    private void UpdateVelocity()
+    {
+        rb.velocity = frameVelocity;
+    }
 
-
-        rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y);
-
-
+    private void HandleFlip()
+    {
         if (horizontal > 0 && !facingRight)
         {
             Flip();
@@ -77,10 +114,56 @@ public class PlayerMovement : MonoBehaviour
         {
             Flip();
         }
+    }
+    private void Flip()
+    {
+        Vector3 currentScale = gameObject.transform.localScale;
+        currentScale.x *= -1;
+        gameObject.transform.localScale = currentScale;
+        facingRight = !facingRight;
+    }
 
+    #region Movement 
+    private void UpdateGround()
+    {
+        isGrounded = Physics2D.BoxCast(transform.position, boxSize, 0, -transform.up, groundDistance, groundLayer);
+    }
 
-        /////////
-        if (IsGounded())
+    #region Jump 
+    public void Jump(InputAction.CallbackContext context)
+    {
+        if (context.performed && !isGrounded)
+        {
+            jumpBufferCoutner = jumpBufferTime;
+        }
+
+        if (context.performed && (jumpCounter > 0 || coyoteCounter > 0f))
+        {
+            ExcuteJump();
+        }
+
+        if (context.canceled && frameVelocity.y > 0f)
+        {
+            coyoteCounter = 0f;
+            jumpCounter--;
+            frameVelocity = new Vector2(frameVelocity.x, frameVelocity.y * 0.5f);
+        }
+
+    }
+
+    private void ExcuteJump()
+    {
+        Debug.Log("Jump");
+        jumpForce = Mathf.Sqrt(jumpHeight * capCollider.size.y * -2 * (Physics2D.gravity.y * rb.gravityScale));
+        // rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        frameVelocity = new Vector2(frameVelocity.x, frameVelocity.y + jumpForce);
+
+    }
+
+    private void ManageJumpAndFall()
+    {
+        //Manage Jump
+        if (isGrounded)
         {
             coyoteCounter = coyoteTime;
             jumpCounter = maxJumps;
@@ -91,7 +174,7 @@ public class PlayerMovement : MonoBehaviour
                 ExcuteJump();
             }
         }
-        else if (IsGounded() && coyoteCounter > 0f)
+        else if (isGrounded && coyoteCounter > 0f)
         {
             coyoteCounter -= Time.deltaTime;
         }
@@ -104,66 +187,16 @@ public class PlayerMovement : MonoBehaviour
             jumpBufferCoutner = -1;
         }
 
-        // rb.velocity = new Vector2(horizontal * moveSpeed, rb.velocity.y);
-
-        if (rb.velocity.y < 0f) // if falling
+        //Manage Fall
+        if (frameVelocity.y < 0f) // if falling
         {
-            rb.velocity = new Vector2(rb.velocity.x, Mathf.Max(rb.velocity.y, -terminalFall)); // limit falling speed
+            frameVelocity = new Vector2(frameVelocity.x, Mathf.Max(frameVelocity.y, -terminalFall)); // limit falling speed
         }
-
-
-        // TODO Orginize vars in to a scriptable object 
-        // TODO Set up tool hints and orginize for unity editor 
-        // * intigrate Jumpbuffer [Ask Other for opinions]
-        // TODO ? Grapple ?
-        // TODO Pick apart update function in to diffrent function && move some into fixed update 
-        // TODO Think about how you want the dash to work or leave as is (ask a friend for input)
-
-
-
-
-    }
-
-    private void Flip()
-    {
-        Vector3 currentScale = gameObject.transform.localScale;
-        currentScale.x *= -1;
-        gameObject.transform.localScale = currentScale;
-        facingRight = !facingRight;
     }
 
 
 
-    public void Jump(InputAction.CallbackContext context)
-    {
-        if (context.performed && !IsGounded())
-        {
-            jumpBufferCoutner = jumpBufferTime;
-        }
-
-        if (context.performed && (jumpCounter > 0 || coyoteCounter > 0f))
-        {
-            ExcuteJump();
-        }
-
-        if (context.canceled && rb.velocity.y > 0f)
-        {
-            jumpPressed = false;
-            coyoteCounter = 0f;
-            jumpCounter--;
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
-        }
-
-    }
-
-    private void ExcuteJump()
-    {
-        jumpPressed = true;
-        jumpForce = Mathf.Sqrt(jumpHeight * capCollider.size.y * -2 * (Physics2D.gravity.y * rb.gravityScale));
-        // rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-        rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y + jumpForce);
-
-    }
+    #endregion
 
 
 
@@ -173,6 +206,7 @@ public class PlayerMovement : MonoBehaviour
         horizontal = context.ReadValue<Vector2>().x;
     }
 
+    #region Dash 
     public void Dash(InputAction.CallbackContext context)
     {
         if (context.performed && canDash)
@@ -180,28 +214,6 @@ public class PlayerMovement : MonoBehaviour
             StartCoroutine(Dash());
         }
     }
-    void OnDrawGizmos()
-    {
-        if (IsGounded())
-        {
-            Gizmos.color = Color.green;
-        }
-        else
-        {
-            Gizmos.color = Color.red;
-        }
-
-        Gizmos.DrawWireCube(transform.position - transform.up * groundDistance, boxSize);
-    }
-
-
-    private bool IsGounded()
-    {
-        return Physics2D.BoxCast(transform.position, boxSize, 0, -transform.up, groundDistance, groundLayer);
-
-    }
-
-
     private IEnumerator Dash()
     {
         canDash = false;
@@ -224,5 +236,29 @@ public class PlayerMovement : MonoBehaviour
 
 
     }
+    #endregion
+    #endregion
+
+
+
+    /* ---------------------------------- Debug --------------------------------- */
+    void OnDrawGizmos()
+    {
+        if (isGrounded)
+        {
+            Gizmos.color = Color.green;
+        }
+        else
+        {
+            Gizmos.color = Color.red;
+        }
+
+        Gizmos.DrawWireCube(transform.position - transform.up * groundDistance, boxSize);
+    }
+    /* ---------------------------------- Debug --------------------------------- */
+
+
+
+
 
 }
