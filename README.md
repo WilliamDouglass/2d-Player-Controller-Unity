@@ -11,7 +11,7 @@ A simple and easy-to-use 2D platformer player controller for Unity, designed to 
   - Jump Buffer
   - Many variables for perfect jump settings
 - Easily customizable input settings useing Unity "New Input System".
-- Ground detection and collision handling for seamless platformer experiences.
+- Ground detection and collision.
 
 
 
