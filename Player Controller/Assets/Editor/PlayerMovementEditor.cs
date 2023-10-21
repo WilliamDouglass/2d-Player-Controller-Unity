@@ -1,4 +1,6 @@
+using NUnit.Framework;
 using UnityEditor;
+using UnityEngine;
 
 [CustomEditor(typeof(PlayerMovementScript))]
 
@@ -30,6 +32,9 @@ public class PlayerMovementEditor : Editor
     SerializedProperty jumpBufferTime;
     SerializedProperty jumpBufferCoutner;
     SerializedProperty frameVelocity;
+    SerializedProperty currentOneWayPlatform;
+    SerializedProperty downInput;
+    SerializedProperty byPassNormalGravityUpdate;
 
     #endregion
 
@@ -69,12 +74,15 @@ public class PlayerMovementEditor : Editor
         jumpBufferTime = serializedObject.FindProperty("jumpBufferTime");
         jumpBufferCoutner = serializedObject.FindProperty("jumpBufferCoutner");
         frameVelocity = serializedObject.FindProperty("frameVelocity");
+        currentOneWayPlatform = serializedObject.FindProperty("currentOneWayPlatform");
+        downInput = serializedObject.FindProperty("downInput");
+        byPassNormalGravityUpdate = serializedObject.FindProperty("byPassNormalGravityUpdate");
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-
+        #region Game Object Group 
         OnEnableGroup = EditorGUILayout.BeginFoldoutHeaderGroup(OnEnableGroup, "Game Object");
         if (OnEnableGroup)
         {
@@ -82,7 +90,8 @@ public class PlayerMovementEditor : Editor
             EditorGUILayout.PropertyField(objectCollider);
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
-
+        #endregion
+        #region Ground Check Group 
         GroundCheckGroup = EditorGUILayout.BeginFoldoutHeaderGroup(GroundCheckGroup, "Ground Check");
         if (GroundCheckGroup)
         {
@@ -91,7 +100,8 @@ public class PlayerMovementEditor : Editor
             EditorGUILayout.PropertyField(groundDistance);
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
-
+        #endregion
+        #region  Walk Run Group
         WalkRunGroup = EditorGUILayout.BeginFoldoutHeaderGroup(WalkRunGroup, "Walking and Running");
         if (WalkRunGroup)
         {
@@ -101,7 +111,8 @@ public class PlayerMovementEditor : Editor
             EditorGUILayout.PropertyField(runDeceloration);
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
-
+        #endregion
+        #region Gravity Group 
         GravityGroup = EditorGUILayout.BeginFoldoutHeaderGroup(GravityGroup, "Gravity");
         if (GravityGroup)
         {
@@ -109,7 +120,8 @@ public class PlayerMovementEditor : Editor
             EditorGUILayout.PropertyField(fallingGravity);
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
-
+        #endregion
+        #region Jumping and Falling Group 
         JumpGroup = EditorGUILayout.BeginFoldoutHeaderGroup(JumpGroup, "Jumping and Falling");
         if (JumpGroup)
         {
@@ -119,6 +131,8 @@ public class PlayerMovementEditor : Editor
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
 
+        #endregion
+        #region  Coyote and Jump Buffer Group
         CoyoteAndBufferGroup = EditorGUILayout.BeginFoldoutHeaderGroup(CoyoteAndBufferGroup, "Coyote and Buffer");
         if (CoyoteAndBufferGroup)
         {
@@ -126,12 +140,15 @@ public class PlayerMovementEditor : Editor
             EditorGUILayout.PropertyField(jumpBufferTime);
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
-
-
+        #endregion
+        #region Debugger Group
         DebugerGroup = EditorGUILayout.BeginFoldoutHeaderGroup(DebugerGroup, "Debug Help");
         if (DebugerGroup)
         {
             EditorGUILayout.PropertyField(isGrounded);
+            EditorGUILayout.PropertyField(currentOneWayPlatform);
+            EditorGUILayout.PropertyField(downInput);
+            EditorGUILayout.PropertyField(byPassNormalGravityUpdate);
             EditorGUILayout.PropertyField(horizontalInput);
             EditorGUILayout.PropertyField(canJump);
             EditorGUILayout.PropertyField(jumpForce);
@@ -142,6 +159,7 @@ public class PlayerMovementEditor : Editor
             EditorGUILayout.PropertyField(frameVelocity);
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
+        #endregion
 
         serializedObject.ApplyModifiedProperties();
     }

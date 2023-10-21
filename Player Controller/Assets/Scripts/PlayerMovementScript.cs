@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using UnityEditor.EditorTools;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,22 +8,29 @@ public class PlayerMovementScript : MonoBehaviour
 {
     #region Vars 
     /* -------------------------------- OnEnable -------------------------------- */
+    [Tooltip("Gets assigned On Awake")]
     [SerializeField] private Rigidbody2D rb;
+    [Tooltip("Gets assigned On Awake")]
     [SerializeField] private Collider2D objectCollider;
 
     /* ------------------------------ Ground Check ------------------------------ */
+    [Tooltip("Layer the Player Can jump on")]
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private Vector2 groundCheckSize;
-    [SerializeField] private float groundDistance;
+    [Tooltip("Size of the box cast for ground check")]
+    [SerializeField] private Vector2 groundCheckSize = new Vector2(1.51f, 0.03f);
+    [Tooltip("Y offset of ground check box")]
+    [SerializeField] private float groundDistance = 1.01f;
     [SerializeField] private bool isGrounded;
 
+
     /* ------------------------------- horizontal ------------------------------- */
-    [Range(1, 50)] //the max range need to be set to the max run speed
-    [SerializeField] private float runAcceloration = 8f;
     [Range(1, 100)]
-    [SerializeField] private float runDeceloration = 10f;
-    [SerializeField] private float runMaxSpeed = 10f;
-    [SerializeField] private float runMinSpeed = 1f;
+    [SerializeField] private float runAcceloration = 45f;
+    [Range(1, 100)]
+    [SerializeField] private float runDeceloration = 95f;
+    [SerializeField] private float runMaxSpeed = 20f;
+    [Tooltip("If the Player velocity is lower than this then velocity is snaped to 0")]
+    [SerializeField] private float runMinSpeed = 1f; //Probably keep this at 1
     [SerializeField] private float horizontalInput;
 
     /* --------------------------------- Gravity -------------------------------- */
@@ -30,9 +38,13 @@ public class PlayerMovementScript : MonoBehaviour
     [SerializeField] private float fallingGravity = 10f;
 
     /* ------------------------------ Jump and Fall ----------------------------- */
-    [SerializeField] private float terminalFall = 8f;
+    [Tooltip("Max fall speed")]
+    [SerializeField] private float terminalFall = 100f;
+    [Tooltip("How high the player can jump in terms of player units")]
     [SerializeField] private float jumpHeight = 5f;
-    [SerializeField] private float jumpAcceloration = 10f;
+    [Range(1, 100)]
+    [Tooltip("How fast the player reaches apex of the jump")]
+    [SerializeField] private float jumpAcceloration = 5f;
     [SerializeField] private bool canJump = false;
     [SerializeField] private float jumpForce;
     [SerializeField] private bool jumpInputPressed = false;
@@ -45,11 +57,11 @@ public class PlayerMovementScript : MonoBehaviour
     /* ------------------------------- Jump Buffer ------------------------------ */
     [SerializeField] private float jumpBufferTime = 0.2f;
     [SerializeField] private float jumpBufferCoutner = 0f;
-
-    /* -------------------------------------------------------------------------- */
+    /* --------------------------------- Physics -------------------------------- */
+    [Tooltip("The velocity that will be applied to rb per frame")]
     [SerializeField] private Vector2 frameVelocity;
-
-    /* -------------------------------------------------------------------------- */
+    /* -------------------------------- Platforms ------------------------------- */
+    [Tooltip("GameObject of the oen way platform player is touching")]
     [SerializeField] private GameObject currentOneWayPlatform;
     [SerializeField] private bool downInput;
     [SerializeField] private bool byPassNormalGravityUpdate = false;
