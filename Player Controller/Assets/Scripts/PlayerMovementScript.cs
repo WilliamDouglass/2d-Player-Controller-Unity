@@ -66,6 +66,9 @@ public class PlayerMovementScript : MonoBehaviour
     [SerializeField] private bool downInput;
     [SerializeField] private bool byPassNormalGravityUpdate = false;
 
+    /* -------------------------------- Animation ------------------------------- */
+    private bool jumpExcuted;
+
     #endregion
 
 
@@ -88,6 +91,8 @@ public class PlayerMovementScript : MonoBehaviour
         HandlePlatforms();
         ApplyMotion();
     }
+
+
 
 
     #region Update Values 
@@ -224,6 +229,7 @@ public class PlayerMovementScript : MonoBehaviour
     private void ExcuteJump()
     {
         // Debug.Log("Jump");
+        jumpExcuted = true;
         canJump = false;
         jumpEnded = false;
         coyoteCounter = -1f;
@@ -307,6 +313,31 @@ public class PlayerMovementScript : MonoBehaviour
 
     #endregion
 
+    #region Getters For Animation
+
+    public Vector2 GetVelocity()
+    {
+        return rb.velocity;
+    }
+    public bool GetisGrounded()
+    {
+        return isGrounded;
+    }
+    public bool GetJumpExcuted()
+    {
+        return jumpExcuted;
+    }
+    public void SetJumpExcuted(bool set)
+    {
+        jumpExcuted = set;
+    }
+
+    public float GetHorizontalInput()
+    {
+        return horizontalInput;
+    }
+
+    #endregion
 
 
 }
