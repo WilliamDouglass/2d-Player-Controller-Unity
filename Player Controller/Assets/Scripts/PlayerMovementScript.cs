@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -48,6 +49,11 @@ public class PlayerMovementScript : MonoBehaviour
     /* -------------------------------------------------------------------------- */
     [SerializeField] private Vector2 frameVelocity;
 
+    /* -------------------------------------------------------------------------- */
+    [SerializeField] private GameObject currentOneWayPlatform;
+    [SerializeField] private bool downInput;
+    [SerializeField] private bool byPassNormalGravityUpdate = false;
+
     #endregion
 
 
@@ -67,7 +73,7 @@ public class PlayerMovementScript : MonoBehaviour
         HandleMove();
         HandleJump();
         HandleFalling();
-
+        HandlePlatforms();
         ApplyMotion();
     }
 
@@ -85,17 +91,28 @@ public class PlayerMovementScript : MonoBehaviour
     {
         if (context.performed)
         {
-            // Debug.Log("Pressed");
             jumpInputPressed = true;
         }
 
         else if (context.canceled)
         {
-            // Debug.Log("Not Pressed");
             jumpInputPressed = false;
-            // jumpEnded = true;
         }
     }
+
+    public void JumpDown(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            downInput = true;
+        }
+
+        else if (context.canceled)
+        {
+            downInput = false;
+        }
+    }
+
     #endregion
     #region Frame Init & Apply 
     private void InitFrameValues()
@@ -135,7 +152,8 @@ public class PlayerMovementScript : MonoBehaviour
     #region Gravity and Falling
     private void HandleGravity()
     {
-        if (isGrounded)
+        if (byPassNormalGravityUpdate) return;
+        if (isGrounded && jumpEnded)
         {
             rb.gravityScale = groundGravity;
         }
@@ -236,5 +254,47 @@ public class PlayerMovementScript : MonoBehaviour
     }
 
     #endregion
+    #region Platforms 
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("OneWayPlatform"))
+        {
+            currentOneWayPlatform = collision.gameObject;
+        }
+    }
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("OneWayPlatform"))
+        {
+            currentOneWayPlatform = null;
+        }
+
+    }
+
+    private void HandlePlatforms()
+    {
+        if (currentOneWayPlatform != null && downInput && frameVelocity.y <= 0f)
+        {
+            StartCoroutine(DisableCollision());
+        }
+    }
+
+
+    private IEnumerator DisableCollision()
+    {
+        BoxCollider2D platformCollider = currentOneWayPlatform.GetComponent<BoxCollider2D>();
+        Physics2D.IgnoreCollision(objectCollider, platformCollider);
+        byPassNormalGravityUpdate = true;
+        rb.gravityScale = fallingGravity;
+        yield return new WaitForSeconds(0.25f);
+        Physics2D.IgnoreCollision(objectCollider, platformCollider, false);
+        byPassNormalGravityUpdate = false;
+    }
+
+
+    #endregion
+
+
 
 }
