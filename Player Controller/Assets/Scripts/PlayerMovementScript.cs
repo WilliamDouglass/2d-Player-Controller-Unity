@@ -1,26 +1,19 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
-// using UnityEngine.TestTools.Constraints;
-using UnityEngine.UIElements;
 
 public class PlayerMovementScript : MonoBehaviour
 {
     #region Vars 
     /* -------------------------------- OnEnable -------------------------------- */
-    private Rigidbody2D rb;
-    private Collider2D objectCollider;
-    private SpriteRenderer spriteRender;
+    [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private Collider2D objectCollider;
 
     /* ------------------------------ Ground Check ------------------------------ */
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private Vector2 boxSize;
+    [SerializeField] private Vector2 groundCheckSize;
     [SerializeField] private float groundDistance;
-    private bool isGrounded;
+    [SerializeField] private bool isGrounded;
 
     /* ------------------------------- horizontal ------------------------------- */
     [Range(1, 50)] //the max range need to be set to the max run speed
@@ -29,8 +22,7 @@ public class PlayerMovementScript : MonoBehaviour
     [SerializeField] private float runDeceloration = 10f;
     [SerializeField] private float runMaxSpeed = 10f;
     [SerializeField] private float runMinSpeed = 1f;
-    public float horizontalInput;
-    private bool facingRight = true;
+    [SerializeField] private float horizontalInput;
 
     /* --------------------------------- Gravity -------------------------------- */
     [SerializeField] private float groundGravity = 5f;
@@ -40,22 +32,21 @@ public class PlayerMovementScript : MonoBehaviour
     [SerializeField] private float terminalFall = 8f;
     [SerializeField] private float jumpHeight = 5f;
     [SerializeField] private float jumpAcceloration = 10f;
-    public bool canJump = false;
-    private float jumpForce;
-    public bool jumpInputPressed = false;
-    public bool jumpEnded = true;
+    [SerializeField] private bool canJump = false;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private bool jumpInputPressed = false;
+    [SerializeField] private bool jumpEnded = true;
 
     /* ---------------------------------- Coyote --------------------------------- */
     [SerializeField] private float coyoteTime = 0.2f;
-    public float coyoteCounter = 0f;
+    [SerializeField] private float coyoteCounter = 0f;
 
     /* ------------------------------- Jump Buffer ------------------------------ */
     [SerializeField] private float jumpBufferTime = 0.2f;
-    public float jumpBufferCoutner = 0f;
+    [SerializeField] private float jumpBufferCoutner = 0f;
 
-
-
-    private Vector2 frameVelocity;
+    /* -------------------------------------------------------------------------- */
+    [SerializeField] private Vector2 frameVelocity;
 
     #endregion
 
@@ -65,15 +56,8 @@ public class PlayerMovementScript : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         objectCollider = GetComponent<Collider2D>();
-        spriteRender = GetComponent<SpriteRenderer>();
     }
 
-    // TODO Orginize vars in to a scriptable object 
-    // TODO Set up tool hints and orginize for unity editor 
-    // * intigrate Jumpbuffer [Ask Other for opinions]
-    // TODO ? Grapple ?
-    // TODO Pick apart update function in to diffrent function && move some into fixed update 
-    // TODO Think about how you want the dash to work or leave as is (ask a friend for input)
 
     private void FixedUpdate()
     {
@@ -84,13 +68,9 @@ public class PlayerMovementScript : MonoBehaviour
         HandleJump();
         HandleFalling();
 
-
         ApplyMotion();
     }
 
-
-
-    //Move
 
     #region Update Values 
 
@@ -133,7 +113,7 @@ public class PlayerMovementScript : MonoBehaviour
     #region Ground Check ()
     private void UpdateGrounded()
     {
-        isGrounded = Physics2D.BoxCast(transform.position, boxSize, 0, -transform.up, groundDistance, groundLayer);
+        isGrounded = Physics2D.BoxCast(transform.position, groundCheckSize, 0, -transform.up, groundDistance, groundLayer);
     }
 
     void OnDrawGizmos() // Displays the ground check box
@@ -147,22 +127,12 @@ public class PlayerMovementScript : MonoBehaviour
             Gizmos.color = Color.red;
         }
 
-        Gizmos.DrawWireCube(transform.position - transform.up * groundDistance, boxSize);
+        Gizmos.DrawWireCube(transform.position - transform.up * groundDistance, groundCheckSize);
     }
     #endregion
 
     #endregion
-    /*
-        Handle
-            Jump
-            Fall
-            Move
-            Dash
-        Update
-            groundCheck
-
-    */
-    #region Gravity
+    #region Gravity and Falling
     private void HandleGravity()
     {
         if (isGrounded)
@@ -182,8 +152,7 @@ public class PlayerMovementScript : MonoBehaviour
     }
 
     #endregion
-
-    #region Move Horizontal
+    #region Move Horizontal 
     private Vector2 velocity = Vector2.zero;
     private void HandleMove()
     {
@@ -205,7 +174,7 @@ public class PlayerMovementScript : MonoBehaviour
 
     }
     #endregion
-    #region Jumping
+    #region Jumping 
     private void HandleJump()
     {
         jumpEnded = (jumpInputPressed) ? false : true;
