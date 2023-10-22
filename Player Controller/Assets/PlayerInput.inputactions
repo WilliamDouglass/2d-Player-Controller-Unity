@@ -2,7 +2,7 @@
     "name": "PlayerInput",
     "maps": [
         {
-            "name": "Player",
+            "name": "PlayerMovement",
             "id": "f6441afa-d537-461a-be78-c1b29267cf82",
             "actions": [
                 {
@@ -40,6 +40,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "JumpDown",
+                    "type": "Button",
+                    "id": "71c9d15b-da82-4659-981f-51c10286a841",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Reset",
+                    "type": "Button",
+                    "id": "9bc952f1-43c8-4ed0-a5c8-952e696dd94a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -64,50 +82,6 @@
                     "action": "Move",
                     "isComposite": true,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "up",
-                    "id": "e2062cb9-1b15-46a2-838c-2f8d72a0bdd9",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "up",
-                    "id": "8180e8bd-4097-4f4e-ab88-4523101a6ce9",
-                    "path": "<Keyboard>/upArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "320bffee-a40b-4347-ac70-c210eb8bc73a",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "down",
-                    "id": "1c5327b5-f71c-4f60-99c7-4e737386f1d1",
-                    "path": "<Keyboard>/downArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Keyboard&Mouse",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 },
                 {
                     "name": "left",
@@ -238,6 +212,61 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7c42238d-e5ea-46ed-bafd-50e45da4cb1a",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "JumpDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "152f1a87-4f1a-4e2e-97a9-d7ed40e9ba95",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "JumpDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "11d4f90b-72a6-4967-9f73-75f7ae5852a2",
+                    "path": "<Gamepad>/leftStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "JumpDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "db627cc8-2f02-4ae7-b1b8-af786309ca24",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "809e1731-34a8-4ae4-ac0e-8b750c8b8782",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Reset",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
