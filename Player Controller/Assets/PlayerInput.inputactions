@@ -2,7 +2,7 @@
     "name": "PlayerInput",
     "maps": [
         {
-            "name": "Player",
+            "name": "PlayerMovement",
             "id": "f6441afa-d537-461a-be78-c1b29267cf82",
             "actions": [
                 {
@@ -45,6 +45,15 @@
                     "name": "JumpDown",
                     "type": "Button",
                     "id": "71c9d15b-da82-4659-981f-51c10286a841",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Reset",
+                    "type": "Button",
+                    "id": "9bc952f1-43c8-4ed0-a5c8-952e696dd94a",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -236,6 +245,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "JumpDown",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "db627cc8-2f02-4ae7-b1b8-af786309ca24",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "809e1731-34a8-4ae4-ac0e-8b750c8b8782",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Reset",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
