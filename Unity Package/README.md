@@ -34,7 +34,7 @@ You can import these packages by following these steps:
 
 ## Usage
 
-1. After installing necessary dependencies as instructed above then import the Easy 2D Player Movement Controller package.
+1. After installing the necessary dependencies as instructed above, then import the Easy 2D Player Movement Controller package.
 2. Add the provided scripts to your player GameObject to enable the 2D player movement.
 3. Configure the player movement parameters in the provided script to suit your game's requirements.
 4. Customize the player movement behavior and controls according to your specific game mechanics.
