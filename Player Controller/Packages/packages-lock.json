@@ -290,6 +290,12 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.williamdouglass.eazyplayercontroller": {
+      "version": "file:Eazy_2D_PlayerController",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,

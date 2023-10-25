@@ -1,0 +1,7 @@
+{
+    "name": "com.williamdouglass.eazyplayercontroller",
+    "version": "0.0.1",
+    "displayName": "Eazy Player Controller",
+    "description": "This is an example package",
+    "unity": "2022.3"
+  }
